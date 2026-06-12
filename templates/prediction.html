@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI Purchase Prediction</title>
+
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+}
+
+nav{
+    background:#111827;
+    padding:15px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+nav h2{
+    color:#38bdf8;
+}
+
+nav ul{
+    display:flex;
+    gap:20px;
+    list-style:none;
+}
+
+nav a{
+    color:white;
+    text-decoration:none;
+}
+
+.container{
+    padding:25px;
+}
+
+.title{
+    color:#38bdf8;
+    margin-bottom:25px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:25px;
+}
+
+.card{
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(10px);
+    border-radius:16px;
+    padding:25px;
+}
+
+.card h3{
+    margin-bottom:20px;
+    color:#38bdf8;
+}
+
+label{
+    display:block;
+    margin-top:15px;
+    margin-bottom:8px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#1e293b;
+    color:white;
+}
+
+button{
+    margin-top:20px;
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:#38bdf8;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0ea5e9;
+}
+
+.result{
+    margin-top:20px;
+    padding:15px;
+    border-radius:10px;
+    background:#172033;
+}
+
+.success{
+    color:#22c55e;
+    font-weight:bold;
+}
+
+.warning{
+    color:#f59e0b;
+    font-weight:bold;
+}
+
+.kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.kpi{
+    background:#172033;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+}
+
+.kpi h4{
+    color:#94a3b8;
+    margin-bottom:10px;
+}
+
+.kpi h2{
+    color:#38bdf8;
+}
+
+.insight-box{
+    background:#172033;
+    padding:20px;
+    border-radius:10px;
+    line-height:1.8;
+    margin-top:20px;
+}
+
+@media(max-width:900px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .kpi-grid{
+        grid-template-columns:1fr;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav>
+
+<h2>AI Customer Analytics</h2>
+
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="/dashboard">Dashboard</a></li>
+<li><a href="/segmentation">Segmentation</a></li>
+<li><a href="/prediction">Prediction</a></li>
+<li><a href="/recommendation">Recommendation</a></li>
+<li><a href="/churn">Churn</a></li>
+<li><a href="/dataset">Dataset</a></li>
+</ul>
+
+</nav>
+
+<div class="container">
+
+<h1 class="title">
+AI Purchase Prediction Dashboard
+</h1>
+
+<div class="grid">
+
+<!-- LEFT PANEL -->
+
+<div class="card">
+
+<h3>Customer Prediction Form</h3>
+
+<label>Annual Income (₹)</label>
+<input type="number" id="income" value="75000">
+
+<label>Purchase Amount (₹)</label>
+<input type="number" id="purchase_amount" value="2500">
+
+<label>Website Visits</label>
+<input type="number" id="website_visits" value="20">
+
+<button onclick="predictPurchase()">
+Predict Purchase Behaviour
+</button>
+
+<div class="result" id="predictionResult">
+
+Waiting for prediction...
+
+</div>
+
+</div>
+
+<!-- RIGHT PANEL -->
+
+<div class="card">
+
+<h3>Prediction Analytics</h3>
+
+<div class="kpi-grid">
+
+<div class="kpi">
+<h4>Prediction Score</h4>
+<h2 id="scoreKPI">0%</h2>
+</div>
+
+<div class="kpi">
+<h4>Status</h4>
+<h2 id="statusKPI">-</h2>
+</div>
+
+<div class="kpi">
+<h4>Confidence</h4>
+<h2 id="confidenceKPI">0%</h2>
+</div>
+
+</div>
+
+<div id="gaugeChart"></div>
+
+<div class="insight-box">
+
+<h3>AI Insights</h3>
+
+<p>
+• Higher income generally increases purchase probability.
+</p>
+
+<p>
+• More website visits indicate stronger customer engagement.
+</p>
+
+<p>
+• Customers with larger historical purchases are more likely to buy again.
+</p>
+
+<p>
+• Scores above 70% indicate highly valuable prospects.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function createGauge(value){
+
+    Plotly.newPlot(
+        'gaugeChart',
+        [{
+            type:"indicator",
+
+            mode:"gauge+number",
+
+            value:value,
+
+            title:{
+                text:"Purchase Probability"
+            },
+
+            gauge:{
+                axis:{
+                    range:[0,100]
+                }
+            }
+        }],
+        {
+            paper_bgcolor:'transparent',
+            font:{
+                color:'white'
+            }
+        }
+    );
+
+}
+
+createGauge(0);
+
+async function predictPurchase(){
+
+    let income =
+        Number(
+            document.getElementById(
+                "income"
+            ).value
+        );
+
+    let purchase_amount =
+        Number(
+            document.getElementById(
+                "purchase_amount"
+            ).value
+        );
+
+    let website_visits =
+        Number(
+            document.getElementById(
+                "website_visits"
+            ).value
+        );
+
+    const response =
+        await fetch(
+            "/api/predict",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:JSON.stringify({
+
+                    income:
+                        income,
+
+                    purchase_amount:
+                        purchase_amount,
+
+                    website_visits:
+                        website_visits
+
+                })
+            }
+        );
+
+    const result =
+        await response.json();
+
+    let probability =
+        result.probability * 100;
+
+    createGauge(probability);
+
+    document.getElementById(
+        "scoreKPI"
+    ).innerHTML =
+        probability.toFixed(1) + "%";
+
+    document.getElementById(
+        "statusKPI"
+    ).innerHTML =
+        probability > 50
+        ? "BUY"
+        : "LOW";
+
+    document.getElementById(
+        "confidenceKPI"
+    ).innerHTML =
+        probability.toFixed(1) + "%";
+
+    let html = "";
+
+    if(probability > 50){
+
+        html = `
+        <div class="success">
+            ${result.prediction}
+        </div>
+
+        <br>
+
+        Purchase Probability:
+        <b>${probability.toFixed(2)}%</b>
+        `;
+    }
+    else{
+
+        html = `
+        <div class="warning">
+            ${result.prediction}
+        </div>
+
+        <br>
+
+        Purchase Probability:
+        <b>${probability.toFixed(2)}%</b>
+        `;
+    }
+
+    document.getElementById(
+        "predictionResult"
+    ).innerHTML =
+        html;
+
+}
+
+</script>
+
+</body>
+</html>

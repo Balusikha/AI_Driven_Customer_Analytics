@@ -1,0 +1,36 @@
+# ==============================
+# AI Driven Customer Analytics
+# Requirements File
+# ==============================
+
+# Core Backend
+Flask==3.0.3
+flask-cors==4.0.1
+
+# Data Processing
+pandas==2.2.2
+numpy==1.26.4
+
+# Machine Learning
+scikit-learn==1.5.1
+scipy==1.13.1
+
+# Visualization
+plotly==5.22.0
+matplotlib==3.9.0
+
+# Model Persistence
+joblib==1.4.2
+
+# Utilities
+python-dotenv==1.0.1
+
+# Optional (for notebooks)
+jupyter==1.0.0
+notebook==7.2.1
+
+# For improved performance (optional)
+threadpoolctl==3.5.0
+
+# Data validation (optional but useful in production)
+pydantic==2.8.2

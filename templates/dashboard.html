@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Customer Analytics Dashboard</title>
+
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Segoe UI, sans-serif;
+        }
+
+        body{
+            background:#0f172a;
+            color:white;
+        }
+
+        nav{
+            background:#111827;
+            padding:15px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        nav h2{
+            color:#38bdf8;
+        }
+
+        nav ul{
+            display:flex;
+            list-style:none;
+            gap:20px;
+        }
+
+        nav a{
+            color:white;
+            text-decoration:none;
+            font-weight:500;
+        }
+
+        .container{
+            padding:20px;
+        }
+
+        .kpi-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:20px;
+            margin-bottom:30px;
+        }
+
+        .card{
+            background:rgba(255,255,255,0.08);
+            backdrop-filter:blur(10px);
+            border-radius:16px;
+            padding:20px;
+            text-align:center;
+            box-shadow:0 4px 15px rgba(0,0,0,.3);
+        }
+
+        .card h3{
+            color:#94a3b8;
+            margin-bottom:10px;
+        }
+
+        .card h2{
+            color:#38bdf8;
+        }
+
+        .chart-grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:20px;
+            margin-top:20px;
+        }
+
+        .chart-card{
+            background:rgba(255,255,255,0.08);
+            padding:15px;
+            border-radius:15px;
+        }
+
+        .full-width{
+            grid-column:1/-1;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:15px;
+        }
+
+        th,td{
+            padding:12px;
+            border:1px solid rgba(255,255,255,.1);
+            text-align:center;
+        }
+
+        th{
+            background:#1e293b;
+        }
+
+        tr:nth-child(even){
+            background:#172033;
+        }
+
+        .section-title{
+            margin-bottom:15px;
+            color:#38bdf8;
+        }
+
+        @media(max-width:900px){
+            .chart-grid{
+                grid-template-columns:1fr;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<nav>
+
+    <h2>AI Customer Analytics</h2>
+
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/segmentation">Segmentation</a></li>
+        <li><a href="/prediction">Prediction</a></li>
+        <li><a href="/recommendation">Recommendation</a></li>
+        <li><a href="/churn">Churn</a></li>
+        <li><a href="/dataset">Dataset</a></li>
+    </ul>
+
+</nav>
+
+<div class="container">
+
+    <h1 style="margin-bottom:25px;">
+        Customer Intelligence Dashboard
+    </h1>
+
+    <!-- KPI CARDS -->
+
+    <div class="kpi-grid">
+
+        <div class="card">
+            <h3>Total Customers</h3>
+            <h2 id="customers">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Revenue</h3>
+            <h2 id="revenue">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Average Purchase</h3>
+            <h2 id="avg_purchase">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Average Income</h3>
+            <h2 id="avg_income">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>High Value Customers</h3>
+            <h2 id="high_value">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Churn Rate</h3>
+            <h2 id="churn_rate">0%</h2>
+        </div>
+
+        <div class="card">
+            <h3>Avg Engagement</h3>
+            <h2 id="engagement">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Purchase Probability</h3>
+            <h2 id="purchase_prob">0%</h2>
+        </div>
+
+    </div>
+
+    <!-- CHARTS -->
+
+    <div class="chart-grid">
+
+        <div class="chart-card">
+            <h3 class="section-title">Customer Segments</h3>
+            <div id="segmentChart"></div>
+        </div>
+
+        <div class="chart-card">
+            <h3 class="section-title">Category Distribution</h3>
+            <div id="categoryChart"></div>
+        </div>
+
+        <div class="chart-card">
+            <h3 class="section-title">Age Group Distribution</h3>
+            <div id="ageChart"></div>
+        </div>
+
+        <div class="chart-card">
+            <h3 class="section-title">Revenue Overview</h3>
+            <div id="revenueChart"></div>
+        </div>
+
+        <div class="chart-card full-width">
+            <h3 class="section-title">Top Customers</h3>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Purchase Amount</th>
+                        <th>Income</th>
+                        <th>Segment</th>
+                    </tr>
+                </thead>
+
+                <tbody id="customerTable">
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+async function loadDashboard(){
+
+    const dashboard = await fetch('/api/dashboard');
+    const data = await dashboard.json();
+
+    const kpi = data.kpis;
+
+    document.getElementById("customers").innerHTML =
+        kpi.total_customers;
+
+    document.getElementById("revenue").innerHTML =
+        "₹" + kpi.total_revenue.toLocaleString();
+
+    document.getElementById("avg_purchase").innerHTML =
+        "₹" + kpi.avg_purchase;
+
+    document.getElementById("avg_income").innerHTML =
+        "₹" + kpi.avg_income;
+
+    document.getElementById("high_value").innerHTML =
+        kpi.high_value_customers;
+
+    document.getElementById("churn_rate").innerHTML =
+        kpi.churn_rate + "%";
+
+    document.getElementById("engagement").innerHTML =
+        kpi.avg_engagement;
+
+    document.getElementById("purchase_prob").innerHTML =
+        kpi.avg_purchase_probability + "%";
+
+
+    // SEGMENT CHART
+
+    Plotly.newPlot(
+        'segmentChart',
+        [{
+            labels:data.segments.map(x=>"Segment "+x.segment),
+            values:data.segments.map(x=>x.customers),
+            type:'pie'
+        }],
+        {paper_bgcolor:'transparent'}
+    );
+
+
+    // CATEGORY CHART
+
+    Plotly.newPlot(
+        'categoryChart',
+        [{
+            x:data.categories.map(x=>x.category),
+            y:data.categories.map(x=>x.customers),
+            type:'bar'
+        }],
+        {paper_bgcolor:'transparent'}
+    );
+
+
+    // AGE CHART
+
+    Plotly.newPlot(
+        'ageChart',
+        [{
+            x:data.age_groups.map(x=>x.age_group),
+            y:data.age_groups.map(x=>x.customers),
+            type:'bar'
+        }],
+        {paper_bgcolor:'transparent'}
+    );
+
+
+    // REVENUE CHART
+
+    Plotly.newPlot(
+        'revenueChart',
+        [{
+            x:[
+                "Total Revenue",
+                "Average Revenue",
+                "Max Purchase",
+                "Min Purchase"
+            ],
+            y:[
+                data.revenue.total_revenue,
+                data.revenue.average_revenue,
+                data.revenue.max_purchase,
+                data.revenue.min_purchase
+            ],
+            type:'bar'
+        }],
+        {paper_bgcolor:'transparent'}
+    );
+
+
+    // TOP CUSTOMERS TABLE
+
+    let table = "";
+
+    data.top_customers.forEach(customer=>{
+
+        table += `
+        <tr>
+            <td>${customer.customer_id}</td>
+            <td>₹${customer.purchase_amount}</td>
+            <td>₹${customer.income}</td>
+            <td>${customer.segment}</td>
+        </tr>
+        `;
+
+    });
+
+    document.getElementById("customerTable").innerHTML = table;
+
+}
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>

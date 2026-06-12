@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Customer Segmentation Analytics</title>
+
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Segoe UI,sans-serif;
+        }
+
+        body{
+            background:#0f172a;
+            color:white;
+        }
+
+        nav{
+            background:#111827;
+            padding:15px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        nav h2{
+            color:#38bdf8;
+        }
+
+        nav ul{
+            display:flex;
+            gap:20px;
+            list-style:none;
+        }
+
+        nav a{
+            color:white;
+            text-decoration:none;
+        }
+
+        .container{
+            padding:20px;
+        }
+
+        .title{
+            margin-bottom:25px;
+            color:#38bdf8;
+        }
+
+        .card-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+            gap:20px;
+            margin-bottom:25px;
+        }
+
+        .card{
+            background:rgba(255,255,255,.08);
+            backdrop-filter:blur(12px);
+            padding:20px;
+            border-radius:16px;
+            text-align:center;
+            box-shadow:0 4px 15px rgba(0,0,0,.3);
+        }
+
+        .card h3{
+            color:#94a3b8;
+            margin-bottom:10px;
+        }
+
+        .card h2{
+            color:#38bdf8;
+        }
+
+        .chart-grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:20px;
+        }
+
+        .chart-card{
+            background:rgba(255,255,255,.08);
+            padding:15px;
+            border-radius:16px;
+        }
+
+        .full{
+            grid-column:1/-1;
+        }
+
+        table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:15px;
+        }
+
+        th,td{
+            padding:12px;
+            border:1px solid rgba(255,255,255,.15);
+            text-align:center;
+        }
+
+        th{
+            background:#1e293b;
+        }
+
+        tr:nth-child(even){
+            background:#172033;
+        }
+
+        @media(max-width:900px){
+
+            .chart-grid{
+                grid-template-columns:1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<nav>
+
+    <h2>AI Customer Analytics</h2>
+
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/segmentation">Segmentation</a></li>
+        <li><a href="/prediction">Prediction</a></li>
+        <li><a href="/recommendation">Recommendation</a></li>
+        <li><a href="/churn">Churn</a></li>
+        <li><a href="/dataset">Dataset</a></li>
+    </ul>
+
+</nav>
+
+<div class="container">
+
+    <h1 class="title">
+        Customer Segmentation Analytics
+    </h1>
+
+    <!-- KPI CARDS -->
+
+    <div class="card-grid">
+
+        <div class="card">
+            <h3>Total Customers</h3>
+            <h2 id="totalCustomers">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Segments</h3>
+            <h2 id="totalSegments">3</h2>
+        </div>
+
+        <div class="card">
+            <h3>Highest Revenue Segment</h3>
+            <h2 id="bestSegment">-</h2>
+        </div>
+
+        <div class="card">
+            <h3>Average Income</h3>
+            <h2 id="avgIncome">0</h2>
+        </div>
+
+    </div>
+
+    <!-- CHARTS -->
+
+    <div class="chart-grid">
+
+        <div class="chart-card">
+            <h3>PCA Customer Clusters</h3>
+            <div id="clusterChart"></div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Segment Distribution</h3>
+            <div id="segmentPie"></div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Revenue by Segment</h3>
+            <div id="revenueChart"></div>
+        </div>
+
+        <div class="chart-card">
+            <h3>Income by Segment</h3>
+            <div id="incomeChart"></div>
+        </div>
+
+        <div class="chart-card full">
+
+            <h3>Segment Analytics Table</h3>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Segment</th>
+                        <th>Customers</th>
+                        <th>Avg Income</th>
+                        <th>Avg Purchase</th>
+                        <th>Avg Churn (%)</th>
+                    </tr>
+                </thead>
+
+                <tbody id="segmentTable"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+async function loadSegmentation(){
+
+    const segmentationResponse =
+        await fetch('/api/segmentation');
+
+    const segmentationData =
+        await segmentationResponse.json();
+
+    const segmentResponse =
+        await fetch('/api/segments');
+
+    const segmentAnalytics =
+        await segmentResponse.json();
+
+    document.getElementById(
+        "totalCustomers"
+    ).innerHTML =
+        segmentationData.length;
+
+    // ======================
+    // PCA CLUSTER SCATTER
+    // ======================
+
+    let clusterTrace = {
+
+        x: segmentationData.map(
+            x => x.pca_x
+        ),
+
+        y: segmentationData.map(
+            x => x.pca_y
+        ),
+
+        mode:'markers',
+
+        marker:{
+            size:10,
+            color: segmentationData.map(
+                x => x.segment
+            )
+        },
+
+        text: segmentationData.map(
+            x => "Customer "+x.customer_id
+        ),
+
+        type:'scatter'
+    };
+
+    Plotly.newPlot(
+        "clusterChart",
+        [clusterTrace],
+        {
+            paper_bgcolor:'transparent',
+            plot_bgcolor:'transparent'
+        }
+    );
+
+    // ======================
+    // SEGMENT PIE
+    // ======================
+
+    Plotly.newPlot(
+        "segmentPie",
+        [{
+            labels:
+                segmentAnalytics.map(
+                    x=>"Segment "+x.segment
+                ),
+
+            values:
+                segmentAnalytics.map(
+                    x=>x.customers
+                ),
+
+            type:'pie'
+        }],
+        {
+            paper_bgcolor:'transparent'
+        }
+    );
+
+    // ======================
+    // REVENUE CHART
+    // ======================
+
+    Plotly.newPlot(
+        "revenueChart",
+        [{
+            x:
+                segmentAnalytics.map(
+                    x=>"Segment "+x.segment
+                ),
+
+            y:
+                segmentAnalytics.map(
+                    x=>x.avg_purchase
+                ),
+
+            type:'bar'
+        }],
+        {
+            paper_bgcolor:'transparent'
+        }
+    );
+
+    // ======================
+    // INCOME CHART
+    // ======================
+
+    Plotly.newPlot(
+        "incomeChart",
+        [{
+            x:
+                segmentAnalytics.map(
+                    x=>"Segment "+x.segment
+                ),
+
+            y:
+                segmentAnalytics.map(
+                    x=>x.avg_income
+                ),
+
+            type:'bar'
+        }],
+        {
+            paper_bgcolor:'transparent'
+        }
+    );
+
+    // ======================
+    // TABLE
+    // ======================
+
+    let tableHTML = "";
+
+    let highestRevenue = 0;
+    let highestSegment = "-";
+
+    segmentAnalytics.forEach(segment => {
+
+        if(segment.avg_purchase > highestRevenue){
+
+            highestRevenue =
+                segment.avg_purchase;
+
+            highestSegment =
+                "Segment " + segment.segment;
+        }
+
+        tableHTML += `
+        <tr>
+            <td>Segment ${segment.segment}</td>
+            <td>${segment.customers}</td>
+            <td>₹${segment.avg_income}</td>
+            <td>₹${segment.avg_purchase}</td>
+            <td>${segment.avg_churn}%</td>
+        </tr>
+        `;
+
+    });
+
+    document.getElementById(
+        "segmentTable"
+    ).innerHTML = tableHTML;
+
+    document.getElementById(
+        "bestSegment"
+    ).innerHTML = highestSegment;
+
+    let totalIncome = 0;
+
+    segmentAnalytics.forEach(s => {
+        totalIncome += s.avg_income;
+    });
+
+    document.getElementById(
+        "avgIncome"
+    ).innerHTML =
+        "₹" +
+        Math.round(
+            totalIncome /
+            segmentAnalytics.length
+        );
+
+}
+
+loadSegmentation();
+
+</script>
+
+</body>
+</html>

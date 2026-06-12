@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AI Driven Customer Analytics Platform</title>
+
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+}
+
+/* NAVBAR */
+
+nav{
+    background:#111827;
+    padding:15px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+nav h2{
+    color:#38bdf8;
+}
+
+nav ul{
+    display:flex;
+    list-style:none;
+    gap:20px;
+}
+
+nav a{
+    color:white;
+    text-decoration:none;
+    transition:.3s;
+}
+
+nav a:hover{
+    color:#38bdf8;
+}
+
+/* HERO */
+
+.hero{
+    text-align:center;
+    padding:70px 20px;
+}
+
+.hero h1{
+    font-size:3rem;
+    color:#38bdf8;
+    margin-bottom:20px;
+}
+
+.hero p{
+    font-size:1.2rem;
+    max-width:900px;
+    margin:auto;
+    line-height:1.8;
+    color:#cbd5e1;
+}
+
+/* KPI SECTION */
+
+.kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    padding:20px 40px;
+}
+
+.card{
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(12px);
+    border-radius:18px;
+    padding:25px;
+    text-align:center;
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.card h3{
+    color:#94a3b8;
+    margin-bottom:10px;
+}
+
+.card h2{
+    color:#38bdf8;
+}
+
+/* MODULES */
+
+.modules{
+    padding:40px;
+}
+
+.modules h2{
+    text-align:center;
+    margin-bottom:30px;
+    color:#38bdf8;
+}
+
+.module-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:25px;
+}
+
+.module-card{
+    background:rgba(255,255,255,.08);
+    border-radius:18px;
+    padding:25px;
+}
+
+.module-card h3{
+    margin-bottom:15px;
+    color:#38bdf8;
+}
+
+.module-card p{
+    color:#cbd5e1;
+    line-height:1.7;
+}
+
+.btn{
+    display:inline-block;
+    margin-top:15px;
+    padding:12px 20px;
+    border-radius:10px;
+    text-decoration:none;
+    color:white;
+    background:#38bdf8;
+}
+
+.btn:hover{
+    background:#0ea5e9;
+}
+
+/* CHART */
+
+.chart-section{
+    padding:40px;
+}
+
+.chart-card{
+    background:rgba(255,255,255,.08);
+    border-radius:18px;
+    padding:20px;
+}
+
+/* FOOTER */
+
+footer{
+    margin-top:50px;
+    text-align:center;
+    padding:20px;
+    background:#111827;
+    color:#94a3b8;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<nav>
+
+<h2>AI Customer Analytics</h2>
+
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="/dashboard">Dashboard</a></li>
+<li><a href="/segmentation">Segmentation</a></li>
+<li><a href="/prediction">Prediction</a></li>
+<li><a href="/recommendation">Recommendation</a></li>
+<li><a href="/churn">Churn</a></li>
+<li><a href="/dataset">Dataset</a></li>
+</ul>
+
+</nav>
+
+<!-- HERO -->
+
+<section class="hero">
+
+<h1>
+AI Driven Customer Analytics Platform
+</h1>
+
+<p>
+
+An intelligent customer analytics system that leverages
+Machine Learning, Customer Segmentation, Purchase Prediction,
+Recommendation Engines, Churn Analysis and Interactive
+Business Intelligence Dashboards to improve customer engagement,
+increase revenue and support data-driven decision making.
+
+</p>
+
+</section>
+
+<!-- KPI SECTION -->
+
+<section class="kpi-grid">
+
+<div class="card">
+<h3>Total Customers</h3>
+<h2 id="customers">0</h2>
+</div>
+
+<div class="card">
+<h3>Total Revenue</h3>
+<h2 id="revenue">0</h2>
+</div>
+
+<div class="card">
+<h3>Avg Purchase</h3>
+<h2 id="purchase">0</h2>
+</div>
+
+<div class="card">
+<h3>Churn Rate</h3>
+<h2 id="churn">0%</h2>
+</div>
+
+</section>
+
+<!-- MODULES -->
+
+<section class="modules">
+
+<h2>Platform Modules</h2>
+
+<div class="module-grid">
+
+<div class="module-card">
+
+<h3>📊 Dashboard Analytics</h3>
+
+<p>
+Interactive executive dashboard containing KPIs,
+revenue insights, customer analytics and advanced charts.
+</p>
+
+<a href="/dashboard" class="btn">
+Open Dashboard
+</a>
+
+</div>
+
+<div class="module-card">
+
+<h3>👥 Customer Segmentation</h3>
+
+<p>
+Identify customer groups using clustering
+techniques and behavioral analysis.
+</p>
+
+<a href="/segmentation" class="btn">
+Open Segmentation
+</a>
+
+</div>
+
+<div class="module-card">
+
+<h3>🛒 Purchase Prediction</h3>
+
+<p>
+Predict future customer purchases using
+machine learning based probability scoring.
+</p>
+
+<a href="/prediction" class="btn">
+Open Prediction
+</a>
+
+</div>
+
+<div class="module-card">
+
+<h3>🎯 Recommendation Engine</h3>
+
+<p>
+Generate personalized recommendations
+based on customer preferences and interests.
+</p>
+
+<a href="/recommendation" class="btn">
+Open Recommendation
+</a>
+
+</div>
+
+<div class="module-card">
+
+<h3>⚠️ Churn Analytics</h3>
+
+<p>
+Identify customers at risk of leaving and
+build proactive retention strategies.
+</p>
+
+<a href="/churn" class="btn">
+Open Churn Analytics
+</a>
+
+</div>
+
+<div class="module-card">
+
+<h3>🗄 Dataset Overview</h3>
+
+<p>
+Analyze dataset quality, customer distribution,
+missing values and statistical summaries.
+</p>
+
+<a href="/dataset" class="btn">
+Open Dataset Overview
+</a>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- CHART -->
+
+<section class="chart-section">
+
+<div class="chart-card">
+
+<h2 style="margin-bottom:20px;color:#38bdf8;">
+Revenue Overview
+</h2>
+
+<div id="revenueChart"></div>
+
+</div>
+
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+
+AI Driven Customer Analytics Platform |
+Machine Learning • Customer Intelligence • Business Analytics
+
+</footer>
+
+<script>
+
+async function loadHomePage(){
+
+    const response =
+        await fetch('/api/dashboard');
+
+    const data =
+        await response.json();
+
+    document.getElementById(
+        "customers"
+    ).innerHTML =
+        data.kpis.total_customers;
+
+    document.getElementById(
+        "revenue"
+    ).innerHTML =
+        "₹" +
+        data.kpis.total_revenue.toLocaleString();
+
+    document.getElementById(
+        "purchase"
+    ).innerHTML =
+        "₹" +
+        data.kpis.avg_purchase;
+
+    document.getElementById(
+        "churn"
+    ).innerHTML =
+        data.kpis.churn_rate + "%";
+
+    Plotly.newPlot(
+        "revenueChart",
+        [{
+            x:[
+                "Total Revenue",
+                "Average Revenue",
+                "Max Purchase",
+                "Min Purchase"
+            ],
+
+            y:[
+                data.revenue.total_revenue,
+                data.revenue.average_revenue,
+                data.revenue.max_purchase,
+                data.revenue.min_purchase
+            ],
+
+            type:"bar"
+        }],
+        {
+            paper_bgcolor:"transparent",
+            plot_bgcolor:"transparent",
+            font:{
+                color:"white"
+            }
+        }
+    );
+
+}
+
+loadHomePage();
+
+</script>
+
+</body>
+</html>
