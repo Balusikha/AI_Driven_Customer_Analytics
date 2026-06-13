@@ -8,8 +8,8 @@ Flask==3.0.3
 flask-cors==4.0.1
 
 # Data Processing
-pandas==2.2.2
-numpy==1.26.4
+pandas==2.3.1
+numpy==2.3.1
 
 # Machine Learning
 scikit-learn==1.5.1
@@ -26,8 +26,7 @@ joblib==1.4.2
 python-dotenv==1.0.1
 
 # Optional (for notebooks)
-jupyter==1.0.0
-notebook==7.2.1
+
 
 # For improved performance (optional)
 threadpoolctl==3.5.0
